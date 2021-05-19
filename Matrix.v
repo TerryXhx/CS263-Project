@@ -5,6 +5,8 @@ Require Import Bool.
 Require Import Program.
 Require Export Coq.ZArith.ZArith.
 
+(* Reference: https://www.cs.umd.edu/~rrand/vqc/Matrix.html#Matrix *)
+
 (* ZSum and its properties *)
 Open Scope Z_scope.
 Fixpoint Zsum (f : nat -> Z) (n : nat) : Z := 
@@ -286,15 +288,14 @@ Ltac by_cell :=
   repeat (destruct j as [|j]; simpl; [|apply lt_S_n in Hj]; try solve_end); clear Hj.
 
 Ltac lma := by_cell; lia.
-
-(** Let's test it! *)                                                     
-(* Lemma scale0_concrete : 0 * I 10 == Zero _ _.
-Proof. lma. Qed. *)
-
+                                                   
 (* ################################################################# *)
 (** * Matrix Library *)
 
-(* Lemma Mscale_0_l : forall {m n : nat} (A : Matrix m n), 0 * A == Zero m n.
+(* Lemma scale0_concrete : 0 * I 10 == Zero _ _.
+Proof. lma. Qed.
+
+Lemma Mscale_0_l : forall {m n : nat} (A : Matrix m n), 0 * A == Zero m n.
 Proof. intros. lma. Qed.
 
 Lemma Mscale_0_r : forall {m n : nat} (c : C), c * Zero m n == Zero m n.
@@ -489,3 +490,6 @@ Ltac restore_dims tac :=
 Tactic Notation "restore_dims" tactic(tac) := restore_dims tac.
 
 Tactic Notation "restore_dims" := restore_dims (try ring; unify_pows_two; simpl; lia).
+
+(* Haoxuan Xu *)
+(* 2021-05-19 21:54 *)
