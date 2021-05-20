@@ -84,7 +84,7 @@ Delimit Scope matrix_scope with M.
 Open Scope matrix_scope.
 Open Scope nat_scope.
 
-(* We define a _matrix_ as a simple function from to nats
+(* We define a _matrix_ as a simple function from two nats
 (corresponding to a row and a column) to a integer. *)
 Definition Matrix (m n : nat) := nat -> nat -> Z.
 
@@ -155,7 +155,11 @@ Definition Mscale {m n : nat} (c : Z) (A : Matrix m n) : Matrix m n :=
 Definition Mplus {m n : nat} (A B : Matrix m n) : Matrix m n :=
   fun i j => A i j + B i j.
 
+Definition Mminus {m n : nat} (A B : Matrix m n) : Matrix m n :=
+  fun i j => A i j - B i j.
+
 Infix "+" := Mplus (at level 50, left associativity) : matrix_scope.
+Infix "-" := Mminus (at level 50, left associativity) : matrix_scope.
 Infix "*" := Mscale (at level 40, left associativity) : matrix_scope.
 
 Lemma Mplus_assoc : forall {m n} (A B C : Matrix m n), (A + B) + C == A + (B + C).
@@ -202,11 +206,20 @@ Proof.
   apply Mplus_compat; tauto.
 Qed.
 
-Lemma Mplus3 : forall {m n} (A B C : Matrix m n), (B + A) + C == A + (B + C).
+Lemma Mminus_compat : forall {m n} (A B A' B' : Matrix m n),
+  A == A' -> B == B' -> A - B == A' - B'.
 Proof.
-  intros m n A B C.
-  rewrite (Mplus_comm B A).
-  apply Mplus_assoc.
+  intros m n A B A' B' HA HB.
+  intros i j Hi Hj.
+  unfold Mminus.
+  rewrite HA, HB; tauto.
+Qed.
+
+Add Parametric Morphism m n : (@Mminus m n)
+  with signature mat_equiv ==> mat_equiv ==> mat_equiv as Mminus_mor.
+Proof.
+  intros A A' HA B B' HB.
+  apply Mminus_compat; tauto.
 Qed.
 
 Lemma Mscale_compat : forall {m n} (c c' : Z) (A A' : Matrix m n),
@@ -491,5 +504,30 @@ Tactic Notation "restore_dims" tactic(tac) := restore_dims tac.
 
 Tactic Notation "restore_dims" := restore_dims (try ring; unify_pows_two; simpl; lia).
 
-(* Haoxuan Xu *)
-(* 2021-05-19 21:54 *)
+
+(* Denotational Semantics *)
+(* matrix n ? *)
+
+Definition var: Type := nat.
+
+Definition state: Type := nat-> Matrix.
+
+Inductive mexp : Type :=
+  | MMat (n: nat) (m : Matrix n n)  
+  | MId (X : var)
+  | MPlus (m1 m2 : mexp)
+  | MMinus (m1 m2 : mexp)
+  | MMult (m1 m2 : mexp).
+  
+Fixpoint meval (m : mexp) : Matrix :=
+  match m with
+  | MMat mat => mat
+  | MId X => st X
+  | MPlus m1 m2 => (meval m1) + (meval m2)
+  | MMinus m1 m2  => (meval m1) - (meval m2)
+  | MMult m1 m2 => (meval m1) * (meval m2)
+  end.
+
+
+(* Haoxuan Xu, Yichen Tao *)
+(* 2021-05-20 18:54 *)
