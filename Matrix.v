@@ -255,6 +255,9 @@ Add Parametric Morphism m n o : (@Mmult m n o)
   with signature mat_equiv ==> mat_equiv ==> mat_equiv as Mmult_mor.
 Proof. intros. apply Mmult_compat; easy. Qed.
 
+Definition subMat {m n} (A : Matrix m n) (k l : nat) : Matrix (m - k)%nat (n - l)%nat :=
+  fun i j => A (i + k)%nat (j + l)%nat.
+
 (* ################################################################# *)
 (** * Matrix Properties *)
 
@@ -510,16 +513,18 @@ Tactic Notation "restore_dims" := restore_dims (try ring; unify_pows_two; simpl;
 
 Definition var: Type := nat.
 
-Definition state: Type := nat-> Matrix.
+Definition state {n: nat}: Type := nat-> Square n.
 
 Inductive mexp : Type :=
-  | MMat (n: nat) (m : Matrix n n)  
+  | MMat {n: nat} (mat : Square n)  
   | MId (X : var)
   | MPlus (m1 m2 : mexp)
   | MMinus (m1 m2 : mexp)
   | MMult (m1 m2 : mexp).
   
-Fixpoint meval (m : mexp) : Matrix :=
+Variable st: state.
+
+Fixpoint meval {w h: nat}(m : mexp) : Matrix w h :=
   match m with
   | MMat mat => mat
   | MId X => st X
@@ -528,6 +533,8 @@ Fixpoint meval (m : mexp) : Matrix :=
   | MMult m1 m2 => (meval m1) * (meval m2)
   end.
 
+Fact Strassen_correctness: forall {n: nat} (st: state) (X Y: Square),
+  meval st (StrassenMult X Y) = meval st (X * Y).
 
 (* Haoxuan Xu, Yichen Tao *)
 (* 2021-05-20 18:54 *)
