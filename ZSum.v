@@ -35,6 +35,12 @@ Proof.
   - simpl. rewrite IHn. lia.  
 Qed.
 
+Lemma Zmult_plus_distr_l : forall c1 c2 c3:Z, c1 * (c2 + c3) = c1 * c2 + c1 * c3.
+Proof. intros. lia. Qed.
+
+Lemma Zmult_plus_distr_r : forall c1 c2 c3:Z, (c1 + c2) * c3 = c1 * c3 + c2 * c3.
+Proof. intros. lia. Qed.
+
 Lemma Zsum_mult_l : forall (c : Z) (f : nat -> Z) (n : nat),
     c * Zsum f n = Zsum (fun x => c * f x) n.  
 Proof.  
