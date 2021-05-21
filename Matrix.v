@@ -183,9 +183,16 @@ Add Parametric Morphism m n o : (@Mmult m n o)
   with signature mat_equiv ==> mat_equiv ==> mat_equiv as Mmult_mor.
 Proof. intros. apply Mmult_compat; easy. Qed.
 
-Definition subMat {m n} (A : Matrix m n) (k l : nat) : Matrix (m - k)%nat (n - l)%nat :=
-  fun i j => A (i + k)%nat (j + l)%nat.
+Definition SubMat {m n} (A : Matrix m n) (rowl rowh coll colh : nat) : Matrix (rowh - rowl)%nat (colh - coll)%nat :=
+  fun i j => A (i + rowl)%nat (j + coll)%nat.
 
+Inductive Split {n : nat} : Square (2 * n) -> Square n -> Square n -> Square n -> Square n -> Prop :=
+  | SplitIntoFour : forall (A : Square (2 * n)) (A11 A12 A21 A22 : Square n),
+      A11 = SubMat A 0 n 0 n  ->
+      A12 = SubMat A 0 n n (2 * n) ->
+      A21 = SubMat A n (2 * n) 0 n -> 
+      A22 = SubMat A n (2 * n) n (2 * n) ->
+      Split A A11 A12 A21 A22.
 (* ################################################################# *)
 (** * Matrix Properties *)
 
