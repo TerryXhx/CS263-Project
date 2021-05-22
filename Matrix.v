@@ -193,6 +193,7 @@ Inductive Split {n : nat} : Square (2 * n) -> Square n -> Square n -> Square n -
       A21 = SubMat A n (2 * n) 0 n -> 
       A22 = SubMat A n (2 * n) n (2 * n) ->
       Split A A11 A12 A21 A22.
+      
 (* ################################################################# *)
 (** * Matrix Properties *)
 

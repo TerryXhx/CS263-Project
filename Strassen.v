@@ -7,20 +7,19 @@ Require Import ZSum.
 Require Export Coq.ZArith.ZArith.
 Require Import Matrix.
 
-
 Open Scope matrix_scope.
 
 Search (Z -> nat). (* Z.to_nat *)
 Search (nat -> Z). (* Z.of_nat *)
 
-
-
+(* todo: n = 0 *)
 Inductive StrassenMult: 
-  nat -> Square  -> Square -> Square -> Prop :=
+  forall n : nat, Square n -> Square n -> Square n -> Prop :=
   | SM_1 : forall (n : nat) (A B C : Square n), 
       n = Z.to_nat 1 -> C = A × B ->
-      StrassenMult n A B C.
-  | SM_n : forall (A B C : Square (2 * n))
+      StrassenMult n A B C
+  | SM_n : forall (n: nat)
+                  (A B C : Square (2 * n))
                   (A11 A12 A21 A22 B11 B12 B21 B22 C11 C12 C21 C22
                   S1 S2 S3 S4 S5 S6 S7 S8 S9 S10
                   P1 P2 P3 P4 P5 P6 P7 : Square n),
@@ -37,18 +36,18 @@ Inductive StrassenMult:
       S8 = B21 + B22 ->
       S9 = A11 - A21 -> 
       S10 = B11 + B12 ->
-      StrassenMult A11 S1 P1 ->
-      StrassenMult S2 B22 P2 ->
-      StrassenMult S3 B11 P3 ->
-      StrassenMult A22 S4 P4 ->
-      StrassenMult S5 S6  P5 ->
-      StrassenMult S7 S8  P6 ->
-      StrassenMult S9 S10 P7 ->
+      StrassenMult n A11 S1 P1 ->
+      StrassenMult n S2 B22 P2 ->
+      StrassenMult n S3 B11 P3 ->
+      StrassenMult n A22 S4 P4 ->
+      StrassenMult n S5 S6  P5 ->
+      StrassenMult n S7 S8  P6 ->
+      StrassenMult n S9 S10 P7 ->
       C11 = P5 + P4 - P2 + P6 ->
       C12 = P1 + P2 ->
       C21 = P3 + P4 ->
       C22 = P5 + P1 - P3 - P7 ->
-      StrassenMult A B C.
+      StrassenMult (2 * n) A B C.
 
 
 Theorem StrassenCorrectness {n : nat} : 
