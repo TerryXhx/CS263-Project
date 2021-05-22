@@ -50,7 +50,7 @@ Inductive StrassenMult:
       StrassenMult (2 * n) A B C.
 
 
-Theorem StrassenCorrectness {n : nat} : 
-  forall (A B C : Square n), @StrassenMult n A B C -> C = A × B.
+Theorem StrassenCorrectness:
+  forall (n : nat)(A B C : Square n), StrassenMult n A B C -> C = A × B.
 
   
