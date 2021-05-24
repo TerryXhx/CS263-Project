@@ -7,6 +7,7 @@ Require Export Coq.ZArith.ZArith.
 
 (* ZSum and its properties *)
 Open Scope Z_scope.
+
 Fixpoint Zsum (f : nat -> Z) (n : nat) : Z := 
   match n with
   | O => 0
@@ -25,6 +26,21 @@ Proof.
     rewrite IHn by (intros; apply H; lia).
     reflexivity.
 Qed.
+
+Lemma Zsum_eq_seg: forall (f g : nat -> Z)(n : nat),
+  n <> Z.to_nat 0 -> 
+  (forall x, (x < n)%nat -> f (x + n)%nat = g x) ->
+  Zsum f (2 * n) = Zsum f n + Zsum g n.
+Proof.
+  intros.
+  induction n.
+  + tauto.
+  + assert ((2 * S n)%nat = (S (2 * n + 1))). {
+      simpl. lia.
+  }.
+
+    
+
 
 Lemma Zsum_plus : forall (f g : nat -> Z) (n : nat),
     Zsum (fun x => f x + g x) n = Zsum f n + Zsum g n.  

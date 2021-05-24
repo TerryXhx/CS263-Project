@@ -186,13 +186,12 @@ Proof. intros. apply Mmult_compat; easy. Qed.
 Definition SubMat {m n} (A : Matrix m n) (rowl rowh coll colh : nat) : Matrix (rowh - rowl)%nat (colh - coll)%nat :=
   fun i j => A (i + rowl)%nat (j + coll)%nat.
 
-Inductive Split {n : nat} : Square (2 * n) -> Square n -> Square n -> Square n -> Square n -> Prop :=
-  | SplitIntoFour : forall (A : Square (2 * n)) (A11 A12 A21 A22 : Square n),
-      A11 = SubMat A 0 n 0 n  ->
-      A12 = SubMat A 0 n n (2 * n) ->
-      A21 = SubMat A n (2 * n) 0 n -> 
-      A22 = SubMat A n (2 * n) n (2 * n) ->
-      Split A A11 A12 A21 A22.
+Definition Split(n : nat) (A : Square (2 * n)) (A11 A12 A21 A22 : Square n): Prop :=
+  A11 = SubMat A 0 n 0 n  /\
+  A12 = SubMat A 0 n n (2 * n) /\
+  A21 = SubMat A n (2 * n) 0 n /\ 
+  A22 = SubMat A n (2 * n) n (2 * n)
+.
       
 (* ################################################################# *)
 (** * Matrix Properties *)

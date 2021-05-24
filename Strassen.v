@@ -23,9 +23,9 @@ Inductive StrassenMult:
                   S1 S2 S3 S4 S5 S6 S7 S8 S9 S10
                   P1 P2 P3 P4 P5 P6 P7 : Square n),
       n <> Z.to_nat 0 ->
-      Split A A11 A12 A21 A22 ->
-      Split B B11 B12 B21 B22 ->
-      Split C C11 C12 C21 C22 ->
+      Split n A A11 A12 A21 A22 ->
+      Split n B B11 B12 B21 B22 ->
+      Split n C C11 C12 C21 C22 ->
       S1 = B12 - B22 ->
       S2 = A11 + A12 ->
       S3 = A21 + A22 -> 
@@ -52,9 +52,9 @@ Inductive StrassenMult:
 Lemma MatMultBlockRes:
   forall (n : nat) (A B C : Square (2 * n)) (A11 A12 A21 A22 B11 B12 B21 B22 C11 C12 C21 C22: Square n),
     n <> Z.to_nat 0 ->
-    Split A A11 A12 A21 A22 ->
-    Split B B11 B12 B21 B22 ->
-    Split C C11 C12 C21 C22 ->
+    Split n A A11 A12 A21 A22 ->
+    Split n B B11 B12 B21 B22 ->
+    Split n C C11 C12 C21 C22 ->
     C = A × B ->
     (C11 == A11 × B11 + A12 × B21) /\ 
     (C12 == A11 × B12 + A12 × B22) /\ 
@@ -62,7 +62,13 @@ Lemma MatMultBlockRes:
     (C22 == A21 × B12 + A22 × B22).
 Proof.
   intros n A B C A11 A12 A21 A22 B11 B12 B21 B22 C11 C12 C21 C22 H0 HA HB HC HMult.
-  repeat try split.
+  unfold Split in HA; destruct HA as [HA11 [HA12 [HA21 HA22]]].
+  unfold Split in HB; destruct HB as [HB11 [HB12 [HB21 HB22]]].
+  unfold Split in HC; destruct HC as [HC11 [HC12 [HC21 HC22]]].
+  unfold SubMat in *.
+  repeat try split; unfold Mmult, Mplus in *; intros i j Hi Hj.
+  + rewrite HA11, HB11, HA12, HB21, HC11.
+    rewrite HMult.     
 Admitted.
 
 Lemma BlockEquivCompat:
