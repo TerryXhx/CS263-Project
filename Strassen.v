@@ -56,27 +56,29 @@ Lemma MatMultBlockRes:
     Split B B11 B12 B21 B22 ->
     Split C C11 C12 C21 C22 ->
     C = A × B ->
-    (C11 = A11 × B11 + A12 × B21) /\ 
-    (C12 = A11 × B12 + A12 × B22) /\ 
-    (C21 = A21 × B11 + A22 × B21) /\
-    (C22 = A21 × B12 + A22 × B22).
+    (C11 == A11 × B11 + A12 × B21) /\ 
+    (C12 == A11 × B12 + A12 × B22) /\ 
+    (C21 == A21 × B11 + A22 × B21) /\
+    (C22 == A21 × B12 + A22 × B22).
 Proof.
-  Admitted.
+  intros n A B C A11 A12 A21 A22 B11 B12 B21 B22 C11 C12 C21 C22 H0 HA HB HC HMult.
+  repeat try split.
+Admitted.
 
 Lemma BlockEquivCompat:
   forall (n : nat) (A B : Square (2 * n)) (A11 A12 A21 A22 B11 B12 B21 B22 : Square n),
     n <> Z.to_nat 0 ->
     Split A A11 A12 A21 A22 ->
     Split B B11 B12 B21 B22 ->
-    A11 = B11 -> A12 = B12 -> A21 = B21 -> A22 = B22 -> 
-    A = B.
+    A11 == B11 -> A12 == B12 -> A21 == B21 -> A22 == B22 -> 
+    A == B.
 Proof.
-  Admitted.
+Admitted.
 
 Theorem StrassenCorrectness:
-  forall (n : nat) (A B C D : Square n), StrassenMult n A B C -> D = A × B -> C = D.
+  forall (n : nat) (A B C D : Square n), StrassenMult n A B C -> D = A × B -> C == D.
 Proof.
-  Admitted.
+Admitted.
 
 (* Haoxuan Xu, Yichen Tao *)
 (* 2021-05-24 15:01 *)
