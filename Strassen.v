@@ -12,7 +12,6 @@ Open Scope matrix_scope.
 Search (Z -> nat). (* Z.to_nat *)
 Search (nat -> Z). (* Z.of_nat *)
 
-(* todo: n = 0 *)
 Inductive StrassenMult: 
   forall n : nat, Square n -> Square n -> Square n -> Prop :=
   | SM_1 : forall (n : nat) (A B C : Square n), 
@@ -23,6 +22,7 @@ Inductive StrassenMult:
                   (A11 A12 A21 A22 B11 B12 B21 B22 C11 C12 C21 C22
                   S1 S2 S3 S4 S5 S6 S7 S8 S9 S10
                   P1 P2 P3 P4 P5 P6 P7 : Square n),
+      n <> Z.to_nat 0 ->
       Split A A11 A12 A21 A22 ->
       Split B B11 B12 B21 B22 ->
       Split C C11 C12 C21 C22 ->
@@ -49,8 +49,34 @@ Inductive StrassenMult:
       C22 = P5 + P1 - P3 - P7 ->
       StrassenMult (2 * n) A B C.
 
+Lemma MatMultBlockRes:
+  forall (n : nat) (A B C : Square (2 * n)) (A11 A12 A21 A22 B11 B12 B21 B22 C11 C12 C21 C22: Square n),
+    n <> Z.to_nat 0 ->
+    Split A A11 A12 A21 A22 ->
+    Split B B11 B12 B21 B22 ->
+    Split C C11 C12 C21 C22 ->
+    C = A × B ->
+    (C11 = A11 × B11 + A12 × B21) /\ 
+    (C12 = A11 × B12 + A12 × B22) /\ 
+    (C21 = A21 × B11 + A22 × B21) /\
+    (C22 = A21 × B12 + A22 × B22).
+Proof.
+  Admitted.
+
+Lemma BlockEquivCompat:
+  forall (n : nat) (A B : Square (2 * n)) (A11 A12 A21 A22 B11 B12 B21 B22 : Square n),
+    n <> Z.to_nat 0 ->
+    Split A A11 A12 A21 A22 ->
+    Split B B11 B12 B21 B22 ->
+    A11 = B11 -> A12 = B12 -> A21 = B21 -> A22 = B22 -> 
+    A = B.
+Proof.
+  Admitted.
 
 Theorem StrassenCorrectness:
-  forall (n : nat)(A B C : Square n), StrassenMult n A B C -> C = A × B.
+  forall (n : nat) (A B C D : Square n), StrassenMult n A B C -> D = A × B -> C = D.
+Proof.
+  Admitted.
 
-  
+(* Haoxuan Xu, Yichen Tao *)
+(* 2021-05-24 15:01 *)
