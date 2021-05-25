@@ -35,7 +35,31 @@ Proof.
   tauto.
 Qed.  
 
-Lemma Zsum_f_g: forall (n : nat) (f g g': nat -> Z),
+Lemma Zsum_g_g': forall (n : nat) (g g' : nat -> Z),
+  (forall x : nat, (x < n)%nat -> g (S x) = g' x) ->
+  Zsum g (S n) = g 0%nat + Zsum g' n.
+Proof.
+  intros.
+  induction n.
+  + simpl. 
+    lia.
+  + assert (forall x : nat, (x < n)%nat -> g (S x) = g' x). {
+      intros.
+      assert ((x < S n)%nat). { lia. }
+      pose proof (H x H1). clear H1.
+      tauto.
+    }
+    pose proof (IHn H0).
+    replace (Zsum g (S (S n))) with (Zsum g (S n) + g (S n)) by reflexivity.
+    rewrite H1.
+    simpl.
+    assert ((n < S n)%nat). { lia. }
+    pose proof (H n H2).
+    rewrite H3.
+    lia.
+Qed.
+
+Lemma Zsum_f_g: forall (n : nat) (f g g' : nat -> Z),
   (forall x : nat, (x < S n)%nat -> f (x + S n)%nat = g' x) -> 
   (forall x : nat, (x < n)%nat -> f (x + n)%nat = g x) ->
   Zsum g n + f (2 * n)%nat = f n + Zsum g' n.
@@ -50,7 +74,28 @@ Proof.
     rewrite <- H2.
     assert ((2 * S n = n + S (S n))%nat). { lia. }
     rewrite <- H1.
-Admitted.
+    assert (forall x : nat, (x < n)%nat -> g (S x) = g' x). {
+      intros.
+      assert ((S x < S n)%nat). { lia. }
+      assert ((x < S (S n))%nat). { lia. }
+      specialize (H x H5).
+      specialize (H0 (S x) H4).
+      rewrite <- H.
+      rewrite <- H0.
+      assert ((S x + S n = x + S (S n))%nat). {
+        lia.
+      }
+      rewrite H6.
+      reflexivity.
+    }
+  pose proof (Zsum_g_g' n g g' H3).
+  rewrite H4.
+  assert ((0 < S n)%nat). { lia. }
+  pose proof (H0 0%nat H5).
+  rewrite <- H6.
+  simpl.
+  lia.
+Qed.
 
 Lemma Zsum_eq_seg: forall (f: nat -> Z)(n : nat),
   forall (g: nat -> Z), (forall x, (x < n)%nat -> f (x + n)%nat = g x) ->
