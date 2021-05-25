@@ -1,6 +1,6 @@
 Require Import Psatz.
-Require Import Setoid.
 Require Import Arith.
+Require Import Setoid.
 Require Import Bool.
 Require Import Program.
 Require Export Coq.ZArith.ZArith.
@@ -13,7 +13,7 @@ Fixpoint Zsum (f : nat -> Z) (n : nat) : Z :=
   | O => 0
   | S n' => Zsum f n' +  f n'
   end.
-  
+
 Lemma Zsum_eq : forall (f g : nat -> Z) (n : nat),
   (forall x, (x < n)%nat -> f x = g x) ->
   Zsum f n = Zsum g n.
@@ -27,20 +27,79 @@ Proof.
     reflexivity.
 Qed.
 
-Lemma Zsum_eq_seg: forall (f g : nat -> Z)(n : nat),
-  n <> Z.to_nat 0 -> 
-  (forall x, (x < n)%nat -> f (x + n)%nat = g x) ->
-  Zsum f (2 * n) = Zsum f n + Zsum g n.
+Lemma func_shift: forall (f: nat -> Z)(n: nat),
+  exists g, (forall x, (x < n)%nat -> f (x + n)%nat = g x).
 Proof.
   intros.
+  exists (fun x => f (x + n)%nat).
+  tauto.
+Qed.  
+
+Lemma Zsum_f_g: forall (n : nat) (f g g': nat -> Z),
+  (forall x : nat, (x < S n)%nat -> f (x + S n)%nat = g' x) -> 
+  (forall x : nat, (x < n)%nat -> f (x + n)%nat = g x) ->
+  Zsum g n + f (2 * n)%nat = f n + Zsum g' n.
+Proof.
+  intros.
+  destruct n.
+  + simpl.
+    lia.
+  + replace (Zsum g' (S n)) with (Zsum g' n + g' n) by reflexivity.
+    assert ((n < S (S n))%nat). { lia. }
+    pose proof (H n H1). clear H1.
+    rewrite <- H2.
+    assert ((2 * S n = n + S (S n))%nat). { lia. }
+    rewrite <- H1.
+Admitted.
+
+Lemma Zsum_eq_seg: forall (f: nat -> Z)(n : nat),
+  forall (g: nat -> Z), (forall x, (x < n)%nat -> f (x + n)%nat = g x) ->
+  Zsum f (2 * n) = Zsum f n + Zsum g n.
+Proof.
+  intros f n.
   induction n.
   + tauto.
-  + assert ((2 * S n)%nat = (S (2 * n + 1))). {
+  + intros g' ?. 
+    (* Zsum f  (2n + 2) -> Zsum f (2n + 1) + f (2n + 1) *)
+    (* Zsum f  (n + 1)  -> Zsum f n + f n *)
+    (* Zsum g' (n + 1)  -> Zsum g' n + g' n *)
+    simpl.
+    pose proof func_shift f n.
+    destruct H0 as [g ?].
+    specialize (IHn g H0).
+    assert ((n + S (n + 0))%nat = S (2 * n)). {
       simpl. lia.
-  }.
+    }
+    rewrite H1. clear H1.
 
-    
+    (* Zsum f (2n + 1) -> Zsum f (2n) + f (2n) *)
+    simpl.
+    assert ((n + (n + 0))%nat = (2 * n)%nat). { lia. }
+    rewrite H1. clear H1.
 
+    (* use IHn: Zsum f (2n) = Zsum f n + Zsum g n *)
+    rewrite IHn.
+    assert ((n < S n)%nat). { lia. }
+    pose proof H n H1.
+    assert ((n + S n)%nat = S (2 * n)). {
+      lia.
+    }
+
+    (* f (2n + 1) = g' n *)
+    assert (f (S (2 * n)) = g' n). {
+      rewrite <- H3.
+      rewrite H2.
+      reflexivity.
+    }
+    rewrite H4. clear H2 H3 H4.
+
+    (* Zsum g n + f (2 * n)%nat = f n + Zsum g' n *)
+    pose proof (Zsum_f_g n f g g' H H0).
+    replace (Zsum f n + Zsum g n + f (2 * n)%nat + g' n) with (Zsum f n + (Zsum g n + f (2 * n)%nat) + g' n).
+    2: { lia. }
+    rewrite H2.
+    lia.
+Qed.
 
 Lemma Zsum_plus : forall (f g : nat -> Z) (n : nat),
     Zsum (fun x => f x + g x) n = Zsum f n + Zsum g n.  
@@ -94,4 +153,4 @@ Close Scope Z_scope.
 (* End of ZSum *)
 
 (* Haoxuan Xu, Yichen Tao *)
-(* 2021-05-20 23:37 *)
+(* 2021-05-25 19:09 *)
