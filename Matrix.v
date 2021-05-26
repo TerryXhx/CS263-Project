@@ -77,9 +77,6 @@ Definition I (n : nat) : Matrix n n := fun i j => if (i =? j)%nat then 1 else 0.
 
 Definition Zero (m n : nat) : Matrix m n := fun _ _ => 0.
 
-Definition Mscale {m n : nat} (c : Z) (A : Matrix m n) : Matrix m n :=
-  fun i j => c * A i j.
-
 Definition Mplus {m n : nat} (A B : Matrix m n) : Matrix m n :=
   fun i j => A i j + B i j.
 
@@ -88,7 +85,6 @@ Definition Mminus {m n : nat} (A B : Matrix m n) : Matrix m n :=
 
 Infix "+" := Mplus (at level 50, left associativity) : matrix_scope.
 Infix "-" := Mminus (at level 50, left associativity) : matrix_scope.
-Infix "*" := Mscale (at level 40, left associativity) : matrix_scope.
 
 Lemma Mplus_assoc : forall {m n} (A B C : Matrix m n), (A + B) + C == A + (B + C).
 Proof.
@@ -148,21 +144,6 @@ Add Parametric Morphism m n : (@Mminus m n)
 Proof.
   intros A A' HA B B' HB.
   apply Mminus_compat; tauto.
-Qed.
-
-Lemma Mscale_compat : forall {m n} (c c' : Z) (A A' : Matrix m n),
-  c = c' -> A == A' -> c * A == c' * A'.
-Proof.
-  intros m n c c' A A' Hc HA.
-  intros i j Hi Hj.
-  unfold Mscale.
-  rewrite Hc, HA; tauto.
-Qed.
-
-Add Parametric Morphism m n : (@Mscale m n)
-  with signature eq ==> mat_equiv ==> mat_equiv as Mscale_mor.
-Proof.
-  intros; apply Mscale_compat; tauto.
 Qed.
 
 Definition Mmult {m n o : nat} (A : Matrix m n) (B : Matrix n o) : Matrix m o :=
@@ -234,61 +215,9 @@ Proof.
     reflexivity.
 Qed.
 
-(* ################################################################# *)
-(** * Matrix Automation *)
-
-(** A useful tactic for solving A == B for concrete A, B *)
-Ltac solve_end :=
-  match goal with
-  | H : lt _ O |- _ => apply Nat.nlt_0_r in H; contradict H
-  end.
-                
-Ltac by_cell := 
-  intros;
-  let i := fresh "i" in 
-  let j := fresh "j" in 
-  let Hi := fresh "Hi" in 
-  let Hj := fresh "Hj" in 
-  intros i j Hi Hj; try solve_end;
-  repeat (destruct i as [|i]; simpl; [|apply lt_S_n in Hi]; try solve_end); clear Hi;
-  repeat (destruct j as [|j]; simpl; [|apply lt_S_n in Hj]; try solve_end); clear Hj.
-
-Ltac lma := by_cell; lia.
                                                    
 (* ################################################################# *)
 (** * Matrix Library *)
-
-(* Lemma scale0_concrete : 0 * I 10 == Zero _ _.
-Proof. lma. Qed.
-
-Lemma Mscale_0_l : forall {m n : nat} (A : Matrix m n), 0 * A == Zero m n.
-Proof. intros. lma. Qed.
-
-Lemma Mscale_0_r : forall {m n : nat} (c : C), c * Zero m n == Zero m n.
-Proof. intros. lma. Qed.
-
-Lemma Mscale_1_l : forall {m n : nat} (A : Matrix m n), 1 * A == A.
-Proof. intros. lma. Qed.
-
-Lemma Mscale_1_r : forall {n : nat} (c : C),
-    c * I n == fun x y => if (x =? y) then c else 0.
-Proof.
-  intros n c i j _ _.
-  unfold I, Mscale; simpl. 
-  destruct (i =? j); lca.
-Qed.
-
-Lemma Mscale_assoc : forall {m n : nat} (x y : C) (A : Matrix m n),
-  x * (y * A) == (x * y)%C * A.
-Proof. lma. Qed.
-
-Lemma Mscale_plus_dist_l : forall {m n : nat} (x y : C) (A : Matrix m n),
-  (x + y)%C * A == x * A + y * A.
-Proof. lma. Qed.
-
-Lemma Mscale_plus_dist_r : forall {m n : nat} (x : C) (A B : Matrix m n),
-  x * (A + B) == x * A + x * B.
-Proof. lma. Qed. *)
 
 Lemma Mmult_plus_dist_l : forall {m n o : nat} (A : Matrix m n) (B C : Matrix n o), 
                            A × (B + C) == A × B + A × C.
@@ -389,151 +318,6 @@ Proof.
   unfold Mplus, Mminus.
   lia.
 Qed.
-
-Lemma Mscale_mult_dist_l : forall {m n o : nat} (x : Z) (A : Matrix m n) (B : Matrix n o), 
-    ((x * A) × B) == x * (A × B).
-Proof. 
-  intros. intros i j _ _.
-  unfold Mscale, Mmult.
-  rewrite Zsum_mult_l.
-  apply Zsum_eq_bounded; intros.
-  lia.
-Qed.
-
-Lemma Mscale_mult_dist_r : forall {m n o : nat} (x : Z) (A : Matrix m n) (B : Matrix n o),
-    (A × (x * B)) == x * (A × B).
-Proof.
-  intros. intros i j _ _.
-  unfold Mscale, Mmult.
-  rewrite Zsum_mult_l.
-  apply Zsum_eq_bounded; intros.
-  lia.
-Qed.
-
-(*******************************)
-(* Automation *)
-(*******************************)
-
-Lemma double_mult : forall (n : nat), (n + n = 2 * n)%nat. Proof. intros. lia. Qed.
-Lemma pow_two_succ_l : forall x, (2^x * 2 = 2 ^ (x + 1))%nat.
-Proof. intros. rewrite mult_comm. rewrite <- Nat.pow_succ_r'. intuition. Qed.
-Lemma pow_two_succ_r : forall x, (2 * 2^x = 2 ^ (x + 1))%nat.
-Proof. intros. rewrite <- Nat.pow_succ_r'. intuition. Qed.
-Lemma double_pow : forall (n : nat), (2^n + 2^n = 2^(n+1))%nat. 
-Proof. intros. rewrite double_mult. rewrite pow_two_succ_r. reflexivity. Qed.
-Lemma pow_components : forall (a b m n : nat), a = b -> m = n -> (a^m = b^n)%nat.
-Proof. intuition. Qed.
-
-Ltac unify_pows_two :=
-  repeat match goal with
-  (* NB: this first thing is potentially a bad idea, do not do with 2^1 *)
-  | [ |- context[ 4%nat ]]                  => replace 4%nat with (2^2)%nat by reflexivity
-  | [ |- context[ (0 + ?a)%nat]]            => rewrite plus_0_l 
-  | [ |- context[ (?a + 0)%nat]]            => rewrite plus_0_r 
-  | [ |- context[ (1 * ?a)%nat]]            => rewrite Nat.mul_1_l 
-  | [ |- context[ (?a * 1)%nat]]            => rewrite Nat.mul_1_r 
-  | [ |- context[ (2 * 2^?x)%nat]]          => rewrite <- Nat.pow_succ_r'
-  | [ |- context[ (2^?x * 2)%nat]]          => rewrite pow_two_succ_l
-  | [ |- context[ (2^?x + 2^?x)%nat]]       => rewrite double_pow 
-  | [ |- context[ (2^?x * 2^?y)%nat]]       => rewrite <- Nat.pow_add_r 
-  | [ |- context[ (?a + (?b + ?c))%nat ]]   => rewrite plus_assoc 
-  | [ |- (2^?x = 2^?y)%nat ]                => apply pow_components; try lia 
-  end.
-
-(** Restoring Matrix dimensions *)
-Ltac is_nat_equality :=
-  match goal with 
-  | |- ?A = ?B => match type of A with
-                | nat => idtac
-                end
-  end.
-
-Lemma f_equal_gen : forall {A B} (f g : A -> B) a b, f = g -> a = b -> f a = g b.
-Proof. intros. subst. reflexivity. Qed.
-
-Ltac unify_matrix_dims tac := 
-  try reflexivity; 
-  repeat (apply f_equal_gen; try reflexivity; 
-          try (is_nat_equality; tac)).
-
-Ltac restore_dims_rec A :=
-   match A with
-(* special cases *)
-  | ?A × I _          => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mmult m' n' n' A' (I n'))
-                        end
-  | I _ × ?B          => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?n' ?o' => constr:(@Mmult n' n' o' (I n')  B')
-                        end
-  | ?A × @Zero ?n ?n  => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mmult m' n' n' A' (@Zero n' n'))
-                        end
-  | @Zero ?n ?n × ?B  => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?n' ?o' => constr:(@Mmult n' n' o' (@Zero n' n') B')
-                        end
-  | ?A × @Zero ?n ?o  => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mmult m' n' o A' (@Zero n' o))
-                        end
-  | @Zero ?m ?n × ?B  => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?n' ?o' => constr:(@Mmult n' n' o' (@Zero m n') B')
-                        end
-  | ?A + @Zero ?m ?n => let A' := restore_dims_rec A in 
-                        match type of A' with 
-                        | Matrix ?m' ?n' => constr:(@Mplus m' n' A' (@Zero m' n'))
-                        end
-  | @Zero ?m ?n + ?B => let B' := restore_dims_rec B in 
-                        match type of B' with 
-                        | Matrix ?m' ?n' => constr:(@Mplus m' n' (@Zero m' n') B')
-                        end
-(* general cases *)
-  | ?A == ?B  => let A' := restore_dims_rec A in 
-                let B' := restore_dims_rec B in 
-                match type of A' with 
-                | Matrix ?m' ?n' => constr:(@mat_equiv m' n' A' B')
-                  end
-  | ?A × ?B   => let A' := restore_dims_rec A in 
-                let B' := restore_dims_rec B in 
-                match type of A' with 
-                | Matrix ?m' ?n' =>
-                  match type of B' with 
-                  | Matrix ?n'' ?o' => constr:(@Mmult m' n' o' A' B')
-                  end
-                end 
-  | ?A + ?B => let A' := restore_dims_rec A in 
-               let B' := restore_dims_rec B in 
-               match type of A' with 
-               | Matrix ?m' ?n' =>
-                 match type of B' with 
-                 | Matrix ?m'' ?n'' => constr:(@Mplus m' n' A' B')
-                 end
-               end
-  | ?c * ?A => let A' := restore_dims_rec A in 
-               match type of A' with
-               | Matrix ?m' ?n' => constr:(@Mscale m' n' c A')
-               end
-  (* Handle functions applied to matrices *)
-  | ?f ?A    => let f' := restore_dims_rec f in 
-               let A' := restore_dims_rec A in 
-               constr:(f' A')
-  (* default *)
-  | ?A       => A
-   end.
-
-Ltac restore_dims tac := 
-  match goal with
-  | |- ?A      => let A' := restore_dims_rec A in 
-                replace A with A' by unify_matrix_dims tac
-  end.
-
-Tactic Notation "restore_dims" tactic(tac) := restore_dims tac.
-
-Tactic Notation "restore_dims" := restore_dims (try ring; unify_pows_two; simpl; lia).
 
 (* Haoxuan Xu, Yichen Tao *)
 (* 2021-05-26 14:34 *)
