@@ -258,7 +258,109 @@ Qed.
 Theorem StrassenCorrectness:
   forall (n : nat) (A B C D : Square n), StrassenMult n A B C -> D = A × B -> C == D.
 Proof.
-Admitted.
+  intros.
+  induction H.
+  + rewrite H0, H1.
+    reflexivity.
+  +  (* calculate P1 - P7 *)
+    assert (A11 × S1 = A11 × S1). { reflexivity. }
+    specialize (IHStrassenMult1 (A11 × S1) H25).
+    assert (S2 × B22 = S2 × B22). { reflexivity. }
+    specialize (IHStrassenMult2 (S2 × B22) H26).
+    assert (S3 × B11 = S3 × B11). { reflexivity. }
+    specialize (IHStrassenMult3 (S3 × B11) H27).
+    assert (A22 × S4 = A22 × S4). { reflexivity. }
+    specialize (IHStrassenMult4 (A22 × S4) H28).
+    assert (S5 × S6 = S5 × S6). { reflexivity. }
+    specialize (IHStrassenMult5 (S5 × S6) H29).
+    assert (S7 × S8 = S7 × S8). { reflexivity. }
+    specialize (IHStrassenMult6 (S7 × S8) H30). 
+    assert (S9 × S10 = S9 × S10). { reflexivity. }
+    specialize (IHStrassenMult7 (S9 × S10) H31).
+    clear H25 H26 H27 H28 H29 H30 H31.
+    
+    (* use lemma to get expression of D11, D12, D21, D22 *)
+    pose proof (Splitable n D H).
+    destruct H25 as [D11 [D12 [D21 [D22 ?]]]].
+    pose proof (
+      MatMultBlockRes 
+        n A B D 
+        A11 A12 A21 A22 
+        B11 B12 B21 B22
+        D11 D12 D21 D22
+        H H1 H2 H25 H0
+    ).
+    destruct H26 as [HD11 [HD12 [HD21 HD22]]].
+
+    (* prove C11 == D11 *)
+    assert (C11 == D11). {
+      rewrite H21.
+      rewrite HD11.
+      rewrite IHStrassenMult2, IHStrassenMult4, IHStrassenMult5, IHStrassenMult6.
+      rewrite H5, H7, H8, H9, H10, H11.
+      pose proof (Mmult_plus_dist A11 A22 B11 B22).
+      pose proof (Mmult_minus_dist_l A22 B21 B11).
+      pose proof (Mmult_plus_dist_r A11 A12 B22).
+      pose proof (Mmult_minus_plus_dist A12 A22 B21 B22).
+      rewrite H26, H27, H28, H29.
+      intros i j Hi Hj.
+      unfold Mplus, Mminus.
+      lia.
+    } 
+
+    (* prove C12 == D12 *)
+    assert (C12 == D12). {
+      rewrite H22.
+      rewrite HD12.
+      rewrite IHStrassenMult1, IHStrassenMult2.
+      rewrite H4, H5.
+      pose proof (Mmult_minus_dist_l A11 B12 B22).
+      pose proof (Mmult_plus_dist_r A11 A12 B22).
+      rewrite H27, H28.
+      intros i j Hi Hj.
+      unfold Mplus, Mminus.
+      lia.
+    } 
+
+    (* prove C21 == D22 *)
+    assert (C21 == D21). {
+      rewrite H23.
+      rewrite HD21.
+      rewrite IHStrassenMult3, IHStrassenMult4.
+      rewrite H6, H7.
+      pose proof (Mmult_plus_dist_r A21 A22 B11).
+      pose proof (Mmult_minus_dist_l A22 B21 B11).
+      rewrite H28, H29.
+      intros i j Hi Hj.
+      unfold Mplus, Mminus.
+      lia.
+    } 
+
+    (* prove C11 == D11 *)
+    assert (C22 == D22). {
+      rewrite H24.
+      rewrite HD22.
+      rewrite IHStrassenMult1, IHStrassenMult3, IHStrassenMult5, IHStrassenMult7.
+      rewrite H4, H6, H8, H9, H12, H13.
+      pose proof (Mmult_plus_dist A11 A22 B11 B22).
+      pose proof (Mmult_minus_dist_l A11 B12 B22).
+      pose proof (Mmult_plus_dist_r A21 A22 B11).
+      pose proof (Mmult_minus_plus_dist A11 A21 B11 B12).
+      rewrite H29, H30, H31, H32.
+      intros i j Hi Hj.
+      unfold Mplus, Mminus.
+      lia.
+    }
+
+    pose proof (
+      BlockEquivCompat 
+      n C D
+      C11 C12 C21 C22
+      D11 D12 D21 D22
+      H H3 H25 H26 H27 H28 H29
+    ).
+    exact H30.
+Qed.
 
 (* Haoxuan Xu, Yichen Tao *)
-(* 2021-05-26 09:41 *)
+(* 2021-05-26 14:34 *)

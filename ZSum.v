@@ -1,3 +1,5 @@
+(* Reference: https://www.cs.umd.edu/~rrand/vqc/Complex.html *)
+
 Require Import Psatz.
 Require Import Arith.
 Require Import Setoid.
@@ -153,11 +155,27 @@ Proof.
   - simpl. rewrite IHn. lia.  
 Qed.
 
+Lemma Zsum_minus : forall (f g : nat -> Z) (n : nat),
+    Zsum (fun x => f x - g x) n = Zsum f n - Zsum g n.  
+Proof. 
+  intros f g n.  
+  induction n.  
+  - simpl. lia.  
+  - simpl. rewrite IHn. lia.  
+Qed.
+
 Lemma Zmult_plus_distr_l : forall c1 c2 c3:Z, c1 * (c2 + c3) = c1 * c2 + c1 * c3.
 Proof. intros. lia. Qed.
 
 Lemma Zmult_plus_distr_r : forall c1 c2 c3:Z, (c1 + c2) * c3 = c1 * c3 + c2 * c3.
 Proof. intros. lia. Qed.
+
+Lemma Zmult_minus_distr_l : forall c1 c2 c3:Z, c1 * (c2 - c3) = c1 * c2 - c1 * c3.
+Proof. intros. lia. Qed.
+
+Lemma Zmult_minus_distr_r : forall c1 c2 c3:Z, (c1 - c2) * c3 = c1 * c3 - c2 * c3.
+Proof. intros. lia. Qed.
+
 
 Lemma Zsum_mult_l : forall (c : Z) (f : nat -> Z) (n : nat),
     c * Zsum f n = Zsum (fun x => c * f x) n.  
@@ -192,8 +210,18 @@ Proof.
   lia.
 Qed.
 
+Lemma Zmult_minus_dist_l (x y z : Z) : x * (y - z) = x * y - x * z.
+Proof.
+  lia.
+Qed.
+
+Lemma Zmult_minus_dist_r (x y z : Z) : (x - y) * z = x * z - y * z.
+Proof.
+  lia.
+Qed.
+
 Close Scope Z_scope.
 (* End of ZSum *)
 
 (* Haoxuan Xu, Yichen Tao *)
-(* 2021-05-26 01:12 *)
+(* 2021-05-26 14:12 *)

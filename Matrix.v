@@ -192,7 +192,22 @@ Definition Split(n : nat) (A : Square (2 * n)) (A11 A12 A21 A22 : Square n): Pro
   A21 = SubMat A n (2 * n) 0 n /\ 
   A22 = SubMat A n (2 * n) n (2 * n)
 .
-      
+
+Lemma Splitable(n : nat) (A : Square (2 * n)): 
+  n <> Z.to_nat 0 ->
+  exists (A11 A12 A21 A22 : Square n), Split n A A11 A12 A21 A22.
+Proof.
+  intros.
+  exists 
+    (SubMat A 0 n 0 n),
+    (SubMat A 0 n n (2 * n)), 
+    (SubMat A n (2 * n) 0 n), 
+    (SubMat A n (2 * n) n (2 * n))
+  .
+  unfold Split.
+  tauto.
+Qed.
+
 (* ################################################################# *)
 (** * Matrix Properties *)
 
@@ -295,6 +310,84 @@ Proof.
   apply Zsum_eq_bounded; intros.
   rewrite Zmult_plus_dist_r. 
   reflexivity.
+Qed.
+
+Lemma Mmult_plus_dist : forall {m n o : nat} (A B : Matrix m n) (C D : Matrix n o), 
+                           (A + B) × (C + D) == A × C + A × D + B × C + B × D.
+Proof. 
+  intros.
+  pose proof (Mmult_plus_dist_l (A + B) C D).
+  rewrite H.
+  pose proof (Mmult_plus_dist_r A B C).
+  pose proof (Mmult_plus_dist_r A B D).
+  rewrite H0, H1.
+  intros i j _ _.
+  unfold Mplus.
+  lia.
+Qed.
+
+Lemma Mmult_minus_dist_l : forall {m n o : nat} (A : Matrix m n) (B C : Matrix n o), 
+                           A × (B - C) == A × B - A × C.
+Proof. 
+  intros. intros i j _ _.
+  unfold Mminus, Mmult.
+  rewrite <- Zsum_minus.
+  apply Zsum_eq_bounded; intros.
+  rewrite Zmult_minus_dist_l. 
+  reflexivity.
+Qed.
+
+Lemma Mmult_minus_dist_r : forall {m n o : nat} (A B : Matrix m n) (C : Matrix n o), 
+                           (A - B) × C == A × C - B × C.
+Proof. 
+  intros. intros i j _ _.
+  unfold Mminus, Mmult.
+  rewrite <- Zsum_minus.
+  apply Zsum_eq_bounded; intros.
+  rewrite Zmult_minus_dist_r. 
+  reflexivity.
+Qed.
+
+Lemma Mmult_minus_dist : forall {m n o : nat} (A B : Matrix m n) (C D : Matrix n o), 
+                           (A - B) × (C - D) == A × C - A × D - B × C + B × D.
+Proof. 
+  intros.
+  pose proof (Mmult_minus_dist_l (A - B) C D).
+  rewrite H.
+  pose proof (Mmult_minus_dist_r A B C).
+  pose proof (Mmult_minus_dist_r A B D).
+  rewrite H0, H1.
+  intros i j _ _.
+  unfold Mplus, Mminus.
+  lia.
+Qed.
+
+Lemma Mmult_minus_plus_dist : forall {m n o : nat} (A B : Matrix m n) (C D : Matrix n o), 
+                           (A - B) × (C + D) == A × C + A × D - B × C - B × D.
+Proof. 
+  intros.
+  pose proof (Mmult_plus_dist_l (A - B) C D).
+  rewrite H.
+  pose proof (Mmult_minus_dist_r A B C).
+  pose proof (Mmult_minus_dist_r A B D).
+  rewrite H0, H1.
+  intros i j _ _.
+  unfold Mplus, Mminus.
+  lia.
+Qed.
+
+Lemma Mmult_plus_minus_dist : forall {m n o : nat} (A B : Matrix m n) (C D : Matrix n o), 
+                           (A + B) × (C - D) == A × C - A × D + B × C - B × D.
+Proof. 
+  intros.
+  pose proof (Mmult_minus_dist_l (A + B) C D).
+  rewrite H.
+  pose proof (Mmult_plus_dist_r A B C).
+  pose proof (Mmult_plus_dist_r A B D).
+  rewrite H0, H1.
+  intros i j _ _.
+  unfold Mplus, Mminus.
+  lia.
 Qed.
 
 Lemma Mscale_mult_dist_l : forall {m n o : nat} (x : Z) (A : Matrix m n) (B : Matrix n o), 
@@ -443,4 +536,4 @@ Tactic Notation "restore_dims" tactic(tac) := restore_dims tac.
 Tactic Notation "restore_dims" := restore_dims (try ring; unify_pows_two; simpl; lia).
 
 (* Haoxuan Xu, Yichen Tao *)
-(* 2021-05-20 23:37 *)
+(* 2021-05-26 14:34 *)
