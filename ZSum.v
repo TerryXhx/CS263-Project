@@ -82,9 +82,7 @@ Proof.
       specialize (H0 (S x) H4).
       rewrite <- H.
       rewrite <- H0.
-      assert ((S x + S n = x + S (S n))%nat). {
-        lia.
-      }
+      assert ((S x + S n = x + S (S n))%nat). { lia. }
       rewrite H6.
       reflexivity.
     }
@@ -198,4 +196,4 @@ Close Scope Z_scope.
 (* End of ZSum *)
 
 (* Haoxuan Xu, Yichen Tao *)
-(* 2021-05-25 19:09 *)
+(* 2021-05-26 01:12 *)

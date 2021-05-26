@@ -6,7 +6,6 @@ Require Import Program.
 Require Import ZSum.
 Require Export Coq.ZArith.ZArith.
 Require Import Matrix.
-
 Open Scope matrix_scope.
 
 Search (Z -> nat). (* Z.to_nat *)
@@ -69,7 +68,144 @@ Proof.
   repeat try split; unfold Mmult, Mplus in *; intros i j Hi Hj.
   + rewrite HA11, HB11, HA12, HB21, HC11.
     rewrite HMult.     
-Admitted.
+    assert (
+      forall y : nat,
+        (y < n)%nat ->
+        ((fun y : nat => (A (i + 0)%nat y * B y (j + 0)%nat)%Z) (y + n)%nat) = 
+        ((fun y : nat => (A (i + 0)%nat (y + n)%nat * B (y + n)%nat (j + 0)%nat)%Z) y)). 
+    {
+      intros.
+      lia.
+    }
+    pose proof (
+      Zsum_eq_seg 
+        (fun y : nat => (A (i + 0)%nat y * B y (j + 0)%nat)%Z) 
+        n
+        (fun y : nat => (A (i + 0)%nat (y + n)%nat * B (y + n)%nat (j + 0)%nat)%Z)
+        H
+    ).
+    rewrite H1.
+    simpl.
+    assert ((i + 0)%nat = i). { lia. }
+    assert ((j + 0)%nat = j). { lia. } 
+    rewrite H2, H3. clear H2 H3.
+    assert (
+      Zsum (fun y : nat => A i y * B y j)%Z n = 
+      Zsum (fun y : nat => A i (y + 0)%nat * B (y + 0)%nat j)%Z n
+    ).
+    {
+      apply Zsum_eq.
+      intros y ?.
+      assert ((y + 0)%nat = y). { lia. }
+      rewrite H3.
+      reflexivity.
+    }
+    rewrite H2.
+    reflexivity.
+  + rewrite HA11, HA12, HB12, HB22, HC12.
+    rewrite HMult.
+    assert (
+      forall y : nat,
+        (y < n)%nat ->
+        ((fun y : nat => (A (i + 0)%nat y * B y (j + n)%nat)%Z) (y + n)%nat) = 
+        ((fun y : nat => (A (i + 0)%nat (y + n)%nat * B (y + n)%nat (j + n)%nat)%Z) y)). 
+    {
+      intros.
+      lia.
+    }
+    pose proof (
+      Zsum_eq_seg 
+        (fun y : nat => (A (i + 0)%nat y * B y (j + n)%nat)%Z) 
+        n
+        (fun y : nat => (A (i + 0)%nat (y + n)%nat * B (y + n)%nat (j + n)%nat)%Z)
+        H
+    ).
+    rewrite H1.
+    simpl.
+    assert ((i + 0)%nat = i). { lia. }
+    rewrite H2. clear H2.
+    assert (
+      Zsum (fun y : nat => A i y * B y (j + n)%nat)%Z n = 
+      Zsum (fun y : nat => A i (y + 0)%nat * B (y + 0)%nat (j + n)%nat)%Z n
+    ).
+    {
+      apply Zsum_eq.
+      intros y ?.
+      assert ((y + 0)%nat = y). { lia. }
+      rewrite H3.
+      reflexivity.
+    }
+    rewrite H2.
+    reflexivity.
+  + rewrite HA21, HA22, HB11, HB21, HC21.
+    rewrite HMult. 
+    assert (
+      forall y : nat,
+        (y < n)%nat ->
+        ((fun y : nat => (A (i + n)%nat y * B y (j + 0)%nat)%Z) (y + n)%nat) = 
+        ((fun y : nat => (A (i + n)%nat (y + n)%nat * B (y + n)%nat (j + 0)%nat)%Z) y)). 
+    {
+      intros.
+      lia.
+    }
+    pose proof (
+      Zsum_eq_seg 
+        (fun y : nat => (A (i + n)%nat y * B y (j + 0)%nat)%Z) 
+        n
+        (fun y : nat => (A (i + n)%nat (y + n)%nat * B (y + n)%nat (j + 0)%nat)%Z)
+        H
+    ).
+    rewrite H1.
+    simpl.
+    assert ((j + 0)%nat = j). { lia. }
+    rewrite H2. clear H2.
+    assert (
+      Zsum (fun y : nat => A (i + n)%nat y * B y j)%Z n = 
+      Zsum (fun y : nat => A (i + n)%nat (y + 0)%nat * B (y + 0)%nat j)%Z n
+    ).
+    {
+      apply Zsum_eq.
+      intros y ?.
+      assert ((y + 0)%nat = y). { lia. }
+      rewrite H3.
+      reflexivity.
+    }
+    rewrite H2.
+    reflexivity.
+  + rewrite HA21, HA22, HB12, HB22, HC22.
+    rewrite HMult.
+    assert (
+      forall y : nat,
+        (y < n)%nat ->
+        ((fun y : nat => (A (i + n)%nat y * B y (j + n)%nat)%Z) (y + n)%nat) = 
+        ((fun y : nat => (A (i + n)%nat (y + n)%nat * B (y + n)%nat (j + n)%nat)%Z) y)). 
+    {
+      intros.
+      lia.
+    }
+    pose proof (
+      Zsum_eq_seg 
+        (fun y : nat => (A (i + n)%nat y * B y (j + n)%nat)%Z) 
+        n
+        (fun y : nat => (A (i + n)%nat (y + n)%nat * B (y + n)%nat (j + n)%nat)%Z)
+        H
+    ).
+    rewrite H1.
+    simpl.
+    assert (
+      Zsum (fun y : nat => A (i + n)%nat y * B y (j + n)%nat)%Z n = 
+      Zsum (fun y : nat => A (i + n)%nat (y + 0)%nat * B (y + 0)%nat (j + n)%nat)%Z n
+    ).
+    {
+      apply Zsum_eq.
+      intros y ?.
+      assert ((y + 0)%nat = y). { lia. }
+      rewrite H3.
+      reflexivity.
+    }
+    rewrite H2.
+    reflexivity.
+Qed.
 
 Lemma BlockEquivCompat:
   forall (n : nat) (A B : Square (2 * n)) (A11 A12 A21 A22 B11 B12 B21 B22 : Square n),
