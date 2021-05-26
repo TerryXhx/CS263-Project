@@ -355,10 +355,10 @@ Proof.
 
     pose proof (
       BlockEquivCompat 
-      n C D
-      C11 C12 C21 C22
-      D11 D12 D21 D22
-      H H3 H25 H26 H27 H28 H29
+        n C D
+        C11 C12 C21 C22
+        D11 D12 D21 D22
+        H H3 H25 H26 H27 H28 H29
     ).
     exact H30.
 Qed.
