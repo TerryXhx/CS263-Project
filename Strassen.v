@@ -210,12 +210,50 @@ Qed.
 Lemma BlockEquivCompat:
   forall (n : nat) (A B : Square (2 * n)) (A11 A12 A21 A22 B11 B12 B21 B22 : Square n),
     n <> Z.to_nat 0 ->
-    Split A A11 A12 A21 A22 ->
-    Split B B11 B12 B21 B22 ->
+    Split n A A11 A12 A21 A22 ->
+    Split n B B11 B12 B21 B22 ->
     A11 == B11 -> A12 == B12 -> A21 == B21 -> A22 == B22 -> 
     A == B.
 Proof.
-Admitted.
+  intros n A B A11 A12 A21 A22 B11 B12 B21 B22 H0 HA HB Heq11 Heq12 Heq21 Heq22.
+  intros i j Hi Hj.
+  unfold Split in HA; destruct HA as [HA11 [HA12 [HA21 HA22]]].
+  unfold Split in HB; destruct HB as [HB11 [HB12 [HB21 HB22]]].
+  unfold SubMat in *.
+  unfold mat_equiv in Heq11, Heq12, Heq21, Heq22.
+  rewrite HA11, HB11 in Heq11.
+  rewrite HA12, HB12 in Heq12.
+  rewrite HA21, HB21 in Heq21.
+  rewrite HA22, HB22 in Heq22.
+  assert ((i < n)%nat \/ (n <= i < 2 * n)%nat). { lia. }
+  assert ((j < n)%nat \/ (n <= j < 2 * n)%nat). { lia. }
+  clear Hi Hj.
+  destruct H; destruct H1. 
+  + specialize (Heq11 i j H H1).
+    assert ((i + 0)%nat = i). { lia. }
+    assert ((j + 0)%nat = j). { lia. }
+    rewrite H2, H3 in Heq11.
+    exact Heq11.
+  + assert (((j - n) < n)%nat). { lia. }
+    specialize (Heq12 i (j - n)%nat H H2). 
+    assert ((i + 0)%nat = i). { lia. }
+    assert ((j - n + n)%nat = j). { lia. }
+    rewrite H3, H4 in Heq12.
+    exact Heq12.
+  + assert ((i - n < n)%nat). { lia. }
+    specialize (Heq21 (i - n)%nat j H2 H1).
+    assert ((i - n + n)%nat = i). { lia. }
+    assert ((j + 0)%nat = j). { lia. }
+    rewrite H3, H4 in Heq21.
+    exact Heq21.
+  + assert ((i - n < n)%nat). { lia. }
+    assert (((j - n) < n)%nat). { lia. }
+    specialize (Heq22 (i - n)%nat (j - n)%nat H2 H3).
+    assert ((i - n + n)%nat = i). { lia. }
+    assert ((j - n + n)%nat = j). { lia. }
+    rewrite H4, H5 in Heq22.
+    exact Heq22.
+Qed.
 
 Theorem StrassenCorrectness:
   forall (n : nat) (A B C D : Square n), StrassenMult n A B C -> D = A × B -> C == D.
@@ -223,4 +261,4 @@ Proof.
 Admitted.
 
 (* Haoxuan Xu, Yichen Tao *)
-(* 2021-05-24 15:01 *)
+(* 2021-05-26 09:41 *)
