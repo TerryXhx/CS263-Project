@@ -5,8 +5,8 @@ The project for [CS 263 Programming languages, Spring 2021 ](https://jhc.sjtu.ed
 
 ### Main files:
 
-- Zsum.v: Definition of Zsum and its properties to support the definition of matrix multiplication and its properties.
-- Matrix.v: Definition of Matrix, its operations and corresponding properties.
+- Zsum.v: Definition of Zsum and its properties to support the definition of matrix multiplication and the proof of its properties.
+- Matrix.v: Definition of matrices, operations and their properties.
 - Strassen.v: Definition of Strassen's algorithm, the proof of its correctness and some suupporting lemmas.
 
 ### Important Definitions
@@ -41,7 +41,7 @@ Definition Mmult {m n o : nat} (A : Matrix m n) (B : Matrix n o) : Matrix m o :=
   fun x z => Zsum (fun y => A x y * B y z)%Z n.
 ```
 
-#### Matrix Blocking
+#### Matrix Block Split
 
 ```Coq
 Definition SubMat {m n} (A : Matrix m n) (rowl rowh coll colh : nat) : Matrix (rowh - rowl)%nat (colh - coll)%nat :=
@@ -57,7 +57,7 @@ Definition Split(n : nat) (A : Square (2 * n)) (A11 A12 A21 A22 : Square n): Pro
 
 #### Strassen's Algorithm
 
-We define the algorithm via  small steps as an inductive quadratic relationship.
+We define the algorithm via  small steps as an inductive quadratic relation.
 
 ```Coq
 Inductive StrassenMult: 
@@ -107,7 +107,7 @@ Theorem StrassenCorrectness:
 
 ## Compilation Order
 
-Please compile the project in the following order:
+Please compile the files in the following order:
 
 1. Zsum.v
 2. Matrix.v
@@ -151,7 +151,7 @@ Lemma BlockEquivCompat:
 
 ### Brief Informal Proof
 
-First, we do induction just over `StrassenMult n A B C`.
+First, we do induction over `StrassenMult n A B C`.
 
 1. SM_1 
 
@@ -159,13 +159,19 @@ First, we do induction just over `StrassenMult n A B C`.
 
 2. SM_n
 
-   (1) Use `MatMultBlockRes` to get the expression of D11, D12, D21, D22 in form of A11, A12, A21, A22, B11, B12, B21, B22.
+   (1) Use `MatMultBlockRes` to get the expression of D11, D12, D21, D22 in the form of A11, A12, A21, A22, B11, B12, B21, B22.
 
-   (2) Rewrite the C11, C12, C21, C22 in form of A11, A12, A21, A22, B11, B12, B21, B22.
+   (2) Rewrite the P1 - P7 in C11, C12, C21, C22, and then rewrite S1 - S10. Finally, we get C11, C12, C21, C22 in the form of A11, A12, A21, A22, B11, B12, B21, B22.
 
-   (3) Use the multiplicative distributive law of matrices(defined in `Matrix.v`) to simplify the expression of C11, C12, C21, C22.
+   (3) Use the multiplicative distributive law of matrices(defined and proved in `Matrix.v`) to simplify the expression of C11, C12, C21, C22.
 
    (4) The equivalence of Cij and Dij can be found directly.
+
+   (5) Use `BlockEquivCompat` to prove C == D.
+
+## Contributors
+
+[Haoxuan Xu](https://github.com/TerryXhx), [Yichen Tao](https://github.com/TaoYC0904)
 
 ## References
 
