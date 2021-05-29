@@ -9,9 +9,6 @@ Require Import Matrix.
 
 Open Scope matrix_scope.
 
-Search (Z -> nat). (* Z.to_nat *)
-Search (nat -> Z). (* Z.of_nat *)
-
 Inductive StrassenMult: 
   forall n : nat, Square n -> Square n -> Square n -> Prop :=
   | SM_1 : forall (n : nat) (A B C : Square n), 
