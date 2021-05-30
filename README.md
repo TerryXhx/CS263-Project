@@ -13,9 +13,7 @@ The project for [CS 263 Programming languages, Spring 2021 ](https://jhc.sjtu.ed
 
 #### Zsum
 
-$$
-Zsum\ f\ n := \sum_{i = 0}^{n - 1}f(i)
-$$
+Zsum f n = f(0) + ... + f(n - 1)
 
 ```Coq
 Fixpoint Zsum (f : nat -> Z) (n : nat) : Z := 
