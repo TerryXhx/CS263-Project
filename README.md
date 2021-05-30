@@ -1,13 +1,13 @@
-# Algorithm Correctness of Strassen’s Algorithm
-The project for [CS 263 Programming languages, Spring 2021 ](https://jhc.sjtu.edu.cn/public/courses/CS263/). The main goal of the project is to prove the algorithm correctness of Strassen's algorithm for matrix multiplication.
+# Correctness of Strassen’s Algorithm
+The project for [CS 263 Programming languages, Spring 2021 ](https://jhc.sjtu.edu.cn/public/courses/CS263/). The main objective of the project is to prove the correctness of Strassen's algorithm for matrix multiplication.
 
 ## Project Overview
 
 ### Main files:
 
-- Zsum.v: Definition of Zsum and its properties to support the definition of matrix multiplication and the proof of its properties.
-- Matrix.v: Definition of matrices, operations and their properties.
-- Strassen.v: Definition of Strassen's algorithm, the proof of its correctness and some suupporting lemmas.
+- ```Zsum.v```: Definition of Zsum, its properties essential to the definition of matrix multiplication and the proof of the properties.
+- ```Matrix.v```: Definition of matrix, its operations and properties.
+- `Strassen.v`: Definition of Strassen's algorithm, the proof of relevant lemmas and algorithm correctness.
 
 ### Important Definitions
 
@@ -27,7 +27,7 @@ Fixpoint Zsum (f : nat -> Z) (n : nat) : Z :=
 
 #### Matrix
 
-We define a _matrix_ as a simple function from two nats (corresponding to a row and a column) to a integer.
+We define a _matrix_ as a simple function from two nats (corresponding to a row and a column) to an integer.
 
 ```Coq
 Definition mat_equiv {m n : nat} (A B : Matrix m n) : Prop :=
@@ -41,7 +41,7 @@ Definition Mmult {m n o : nat} (A : Matrix m n) (B : Matrix n o) : Matrix m o :=
   fun x z => Zsum (fun y => A x y * B y z)%Z n.
 ```
 
-#### Matrix Block Split
+#### Split of Matrix
 
 ```Coq
 Definition SubMat {m n} (A : Matrix m n) (rowl rowh coll colh : nat) : Matrix (rowh - rowl)%nat (colh - coll)%nat :=
@@ -57,7 +57,7 @@ Definition Split(n : nat) (A : Square (2 * n)) (A11 A12 A21 A22 : Square n): Pro
 
 #### Strassen's Algorithm
 
-We define the algorithm via  small steps as an inductive quadratic relation.
+We define the algorithm as a quadratic relation recursively.
 
 ```Coq
 Inductive StrassenMult: 
@@ -98,7 +98,7 @@ Inductive StrassenMult:
       StrassenMult (2 * n) A B C.
 ```
 
-#### Strassen's Algorithms Correctness
+#### Correctness of Strassen's Algorithms 
 
 ```Coq
 Theorem StrassenCorrectness:
@@ -109,9 +109,9 @@ Theorem StrassenCorrectness:
 
 Please compile the files in the following order:
 
-1. Zsum.v
-2. Matrix.v
-3. Strassen.v
+1. `Zsum.v`
+2. `Matrix.v`
+3. `Strassen.v`
 
 ## Proof Sketch
 
@@ -119,7 +119,7 @@ Please compile the files in the following order:
 
 #### MatMultBlockRes
 
-It states that expressions for block multiplication of matrices.
+This lemma states how to calculate the product of  block partitioned matrices only involving multiplication of submatrices of the factors.
 
 ```Coq
 Lemma MatMultBlockRes:
@@ -137,7 +137,7 @@ Lemma MatMultBlockRes:
 
 #### BlockEquivCompat
 
-It states that when the four blocks of two matrices correspond to each other, the two matrices are also equal.
+This lemma states how to judge the equivalence to matrices only involving the comparison of their submatrices.
 
 ```Coq
 Lemma BlockEquivCompat:
@@ -149,21 +149,21 @@ Lemma BlockEquivCompat:
     A == B.
 ```
 
-### Brief Informal Proof
+### Schema of Proof
 
-First, we do induction over `StrassenMult n A B C`.
+By executing induction over `StrassenMult n A B C`, two cases need to be discussed.
 
 1. SM_1 
 
-   When the matrix is one-dimensional, we use the initial definition of matrix multiplication to define the algorithm, so the equivalence can be found just by `reflexivity`.
+   When the matrix is of order 1, the algorithm is defined by the initial definition of matrix multiplication, so the equivalence can be proved just by `reflexivity`.
 
 2. SM_n
 
-   (1) Use `MatMultBlockRes` to get the expression of D11, D12, D21, D22 in the form of A11, A12, A21, A22, B11, B12, B21, B22.
+   (1) Apply `MatMultBlockRes` to get the expression of D11, D12, D21, D22 denoted by A11, A12, A21, A22, B11, B12, B21, B22.
 
-   (2) Rewrite the P1 - P7 in C11, C12, C21, C22, and then rewrite S1 - S10. Finally, we get C11, C12, C21, C22 in the form of A11, A12, A21, A22, B11, B12, B21, B22.
+   (2) Rewrite P1 - P7 in C11, C12, C21, C22, and then rewrite S1 - S10. Finally, we get C11, C12, C21, C22 denoted by A11, A12, A21, A22, B11, B12, B21, B22.
 
-   (3) Use the multiplicative distributive law of matrices(defined and proved in `Matrix.v`) to simplify the expression of C11, C12, C21, C22.
+   (3) Use the distribution law of multiplication of matrices(defined and proved in `Matrix.v`) to simplify the expression of C11, C12, C21, C22.
 
    (4) The equivalence of Cij and Dij can be found directly.
 
